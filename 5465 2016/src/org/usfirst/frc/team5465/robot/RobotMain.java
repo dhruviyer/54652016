@@ -11,13 +11,13 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Robot extends IterativeRobot
+public class RobotMain extends IterativeRobot
 {
 	CameraServer server;
 	
 	SmartDashboard dash;
 		
-	private RobotDrive myRobotDrive;
+	private ManualDrive unassistedDrive;
 	private RobotArm myRobotArm;
 	
 	private Joystick driverJoystick;
@@ -31,10 +31,13 @@ public class Robot extends IterativeRobot
 	private ADXRS450_Gyro gyro;
 	private Compressor compressor;
 	
+	///////ROBOT CONSTANTS ***CONSULT ELECTRICAL TEAM FOR CONCURANCY***
+	final int LEFT_PORT = 0;
+	final int RIGHT_PORT = 1;
 	
     public void robotInit() 
     {
-    	myRobotDrive = new RobotDrive();
+    	unassistedDrive = new ManualDrive(LEFT_PORT, RIGHT_PORT);
     	myRobotArm = new RobotArm();
     	
     	driverJoystick = new Joystick(0);
@@ -52,8 +55,6 @@ public class Robot extends IterativeRobot
         compressor = new Compressor();
         compressor.start();
         
-        PIDDrive pidDrive = new PIDDrive(gyro, myRobotDrive);
-        
     }
     
     public void autonomousInit()
@@ -69,7 +70,7 @@ public class Robot extends IterativeRobot
     public void teleopPeriodic() 
     {
     	updateJoysticks();
-    	myRobotDrive.drive(driverJoyStick_Y, driverJoyStick_Z);
+    	unassistedDrive.drive(driverJoyStick_Y, driverJoyStick_Z);
     	myRobotArm.moveRobotArm(-1*armJoyStick_Y);
     	myRobotArm.actuate(armJoystick.getRawButton(0));
     }
@@ -86,7 +87,7 @@ public class Robot extends IterativeRobot
     
     public void disabledPeriodic()
     {
-    	myRobotDrive.stopMotors();
+    	unassistedDrive.stopMotors();
     	myRobotArm.stopRobotArm();
     	compressor.stop();
     }

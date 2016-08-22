@@ -1,17 +1,22 @@
 package org.usfirst.frc.team5465.robot;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.Victor;
 
-public class PIDDrive {
+public class PIDDrive extends RobotDrive
+{
 	private ADXRS450_Gyro gyro;
 	private double setPoint = 0;
 	private double currentValue = 0;
-	private RobotDrive robot;
+	private Victor leftSide;
+	private Victor rightSide;
 	
-	public PIDDrive(ADXRS450_Gyro gyro, RobotDrive robot)
+	public PIDDrive(ADXRS450_Gyro gyro, int leftPort, int rightPort)
 	{
+		super(leftPort, rightPort);
+		this.leftSide = super.leftSide;
+		this.rightSide = super.rightSide;
 		this.gyro = gyro;
-		this.robot = robot;
 	}
 	
 	private void updateGyro()
@@ -23,12 +28,13 @@ public class PIDDrive {
 	{
 		setPoint = gyro.getAngle();
 	}
-	
-	private void drive(double speed)
-	{
+
+	@Override
+	public void drive(double x, double y) {
 		updateGyro();
 		double difference = setPoint-currentValue;
 		double motorPower = difference/180;
-		robot.drive(speed, motorPower);
+		leftSide.set(y+motorPower);
+		rightSide.set(y-motorPower);
 	}
 }
