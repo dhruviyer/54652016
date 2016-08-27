@@ -3,6 +3,12 @@ import cv2
 import time
 import matplotlib.pyplot as plt
 import sys
+import socket
+
+#IP address of the network 
+UDP_IP = "10.15.17.4" #IP of wifi at techshop
+#Port created from the server side (Java)
+UDP_PORT = 5466
 
 def onmouse(k, x, y, s, p):
     global hsv
@@ -169,9 +175,12 @@ cap.release()
 cv2.destroyAllWindows()
 
 
-plt.plot(distance_data)
-plt.xlabel('TimeData')
-plt.ylabel('Distance to Target(in) ')
-plt.title('Distance vs Time From Camera')
-plt.show()
+#plt.plot(distance_data)
+#plt.xlabel('TimeData')
+#plt.ylabel('Distance to Target(in) ')
+#plt.title('Distance vs Time From Camera')
+#plt.show()
 
+sock = socket.socket(socket.AF_INET, # Internet
+                     socket.SOCK_DGRAM) # UDP
+sock.sendto(MESSAGE.encode(), (UDP_IP, UDP_PORT))
