@@ -18,6 +18,8 @@ public class RobotMain extends IterativeRobot
 	SmartDashboard dash;
 		
 	private ManualDrive unassistedDrive;
+	private PIDDrive assistedDrive;
+	
 	private RobotArm myRobotArm;
 	
 	private Joystick driverJoystick;
@@ -27,9 +29,14 @@ public class RobotMain extends IterativeRobot
 	private double driverJoyStick_Y;
 	private double armJoyStick_X;
 	private double armJoyStick_Y;
+	private boolean doManualDrive = false;
+	private boolean actuatePiston = false;
 	
 	private ADXRS450_Gyro gyro;
 	private Compressor compressor;
+	
+	private double prevTurn = 0;
+	private double newTurn = 0;
 	
 	///////ROBOT CONSTANTS ***CONSULT ELECTRICAL TEAM FOR CONCURANCY***
 	final int LEFT_PORT = 0;
@@ -37,7 +44,12 @@ public class RobotMain extends IterativeRobot
 	
     public void robotInit() 
     {
+    	gyro = new ADXRS450_Gyro();
+        gyro.calibrate();
+           
     	unassistedDrive = new ManualDrive(LEFT_PORT, RIGHT_PORT);
+    	assistedDrive = new PIDDrive(gyro, LEFT_PORT, RIGHT_PORT);
+    	
     	myRobotArm = new RobotArm();
     	
     	driverJoystick = new Joystick(0);
@@ -48,9 +60,6 @@ public class RobotMain extends IterativeRobot
         server.startAutomaticCapture("cam0");
          
         dash = new SmartDashboard();
-        
-        gyro = new ADXRS450_Gyro();
-        gyro.calibrate();
         
         compressor = new Compressor();
         compressor.start();
@@ -69,13 +78,35 @@ public class RobotMain extends IterativeRobot
     
     public void teleopPeriodic() 
     {
-    	updateJoysticks();
-    	unassistedDrive.drive(driverJoyStick_Y, driverJoyStick_Z);
+    	doDrive();
+    	
     	myRobotArm.moveRobotArm(-1*armJoyStick_Y);
-    	myRobotArm.actuate(armJoystick.getRawButton(0));
+    	myRobotArm.actuate(actuatePiston);
     }
     
-    public void testPeriodic() 
+    private void doDrive() {
+    	updateJoysticks();
+    	newTurn = driverJoyStick_Z;
+    	
+    	if(Math.abs(newTurn) > 0.05)
+    		doManualDrive = true;
+    	else
+    	{
+    		if(prevTurn>0.05)
+    			assistedDrive.updateSetPoint();
+    	}
+    	
+    	if(doManualDrive)
+    		unassistedDrive.drive(driverJoyStick_Y, driverJoyStick_Z);
+    	else
+    	{
+    		assistedDrive.drive(driverJoyStick_Y);
+    	}
+    	
+    	prevTurn = newTurn;
+	}
+
+	public void testPeriodic() 
     {
     
     }
@@ -88,6 +119,8 @@ public class RobotMain extends IterativeRobot
     public void disabledPeriodic()
     {
     	unassistedDrive.stopMotors();
+    	assistedDrive.stopMotors();
+    	
     	myRobotArm.stopRobotArm();
     	compressor.stop();
     }
@@ -96,10 +129,14 @@ public class RobotMain extends IterativeRobot
     {
     	driverJoyStick_Z = driverJoystick.getZ();
     	driverJoyStick_Y = driverJoystick.getY();
+    	
     	dash.putNumber("Turn", driverJoyStick_Z);
     	dash.putNumber("Gyro", gyro.getAngle());
     	
     	armJoyStick_X = armJoystick.getX();
     	armJoyStick_Y = armJoystick.getY();
+    	
+    	doManualDrive = driverJoystick.getRawButton(0);
+    	actuatePiston = armJoystick.getRawButton(0);
     }
 }

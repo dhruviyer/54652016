@@ -2,10 +2,10 @@ package org.usfirst.frc.team5465.robot;
 
 import edu.wpi.first.wpilibj.*;
 
-public abstract class RobotDrive 
+public class RobotDrive 
 {
-	protected Victor leftSide;
-	protected Victor rightSide;
+	protected static Victor leftSide;
+	protected static Victor rightSide;
 
 	public RobotDrive(int leftPort, int rightPort) 
 	{
@@ -13,7 +13,11 @@ public abstract class RobotDrive
 		rightSide = new Victor(rightPort);
 	}
 	
-	public abstract void drive(double turn, double speed);
+	public void drive(double turn, double speed)
+	{
+		leftSide.set(speed+turn);
+		rightSide.set(speed-turn);
+	}
  	
 	public void stopMotors()
 	{

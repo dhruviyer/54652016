@@ -8,14 +8,10 @@ public class PIDDrive extends RobotDrive
 	private ADXRS450_Gyro gyro;
 	private double setPoint = 0;
 	private double currentValue = 0;
-	private Victor leftSide;
-	private Victor rightSide;
 	
 	public PIDDrive(ADXRS450_Gyro gyro, int leftPort, int rightPort)
 	{
 		super(leftPort, rightPort);
-		this.leftSide = super.leftSide;
-		this.rightSide = super.rightSide;
 		this.gyro = gyro;
 	}
 	
@@ -29,12 +25,10 @@ public class PIDDrive extends RobotDrive
 		setPoint = gyro.getAngle();
 	}
 
-	@Override
-	public void drive(double x, double y) {
+	public void drive(double speed) {
 		updateGyro();
 		double difference = setPoint-currentValue;
 		double motorPower = difference/180;
-		leftSide.set(y+motorPower);
-		rightSide.set(y-motorPower);
+		super.drive(motorPower, speed);
 	}
 }
