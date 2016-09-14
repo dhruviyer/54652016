@@ -133,10 +133,14 @@ public class RobotMain extends IterativeRobot
     	dash.putNumber("Turn", driverJoyStick_Z);
     	dash.putNumber("Gyro", gyro.getAngle());
     	
+    	dash.putNumber("Forward/Back", driverJoyStick.getY());
+    	
     	armJoyStick_X = armJoystick.getX();
     	armJoyStick_Y = armJoystick.getY();
     	
     	doManualDrive = driverJoystick.getRawButton(0);
     	actuatePiston = armJoystick.getRawButton(0);
     }
+    
+
 }
